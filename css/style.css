@@ -10,10 +10,14 @@ html {
   font-size: 62.5%;
 }
 
+h3 {
+  color: #fff;
+}
+
 .container {
   width: 114rem;
   margin: 0 auto;
-  background-color: yellow;
+  background-color: #333;
 }
 
 .grid {
@@ -23,7 +27,7 @@ html {
   width: 56rem;
   height: 56rem;
   margin: 0 auto;
-  background-color: red;
+  background-color: transparent;
 }
 
 .grid div {
@@ -33,7 +37,7 @@ html {
 
 .pac-dot {
   background-color: green;
-  border: 0.5rem solid white;
+  border: 0.5rem solid #333;
 }
 
 .wall {
