@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap");
+
 *,
 *::before,
 *::after {
@@ -12,21 +14,70 @@ html {
 
 h3 {
   color: #fff;
+  margin-left: 0.5rem;
+  font-size: 1.6rem;
+}
+
+h3 span {
+  color: yellow;
+}
+
+body {
+  background-color: #333;
+  height: 100vh;
+  font-family: "Press Start 2P", sans-serif;
+  color: #fff;
+  padding: 3rem 1.5rem;
+  overflow: hidden;
 }
 
 .container {
   width: 114rem;
+  height: 100vh;
+  position: relative;
   margin: 0 auto;
-  background-color: #333;
+}
+
+.heading {
+  text-align: center;
+  font-size: 3rem;
+  margin-top: 4rem;
+  letter-spacing: 2px;
+}
+
+.game-functions-box {
+  position: absolute;
+  top: 40%;
+  right: 6%;
+  transform: translateY(-50%);
+
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  justify-content: flex-start;
+  align-items: self-start;
+}
+
+.btn {
+  font-family: "Press Start 2P", sans-serif;
+  background-color: yellow;
+  color: #333;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.5rem;
+  border-radius: 1rem;
+  cursor: pointer;
 }
 
 .grid {
   display: flex;
-
   flex-wrap: wrap;
   width: 56rem;
   height: 56rem;
-  margin: 0 auto;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   background-color: transparent;
 }
 
