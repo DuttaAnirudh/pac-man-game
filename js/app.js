@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const height = 28;
 
   let score = 0;
+  let ghostEaten = 0;
 
   const grid = document.querySelector('.grid');
 
@@ -143,6 +144,33 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   ////////////////////////////////////////////
+  // Check for Game Over
+  const checkGameOver = function () {
+    if (
+      squares[pacmanCurrentIndex].classList.contains('ghost') &&
+      !squares[pacmanCurrentIndex].classList.contains('scared-ghost')
+    ) {
+      ghosts.forEach(ghost => clearInterval(ghost.timerId));
+      document.removeEventListener('keyup', movePacman);
+      setTimeout(function () {
+        alert('Game Over'), 500;
+      });
+    }
+  };
+
+  ////////////////////////////////////////////
+  // Check for Win
+  const checkForWin = function () {
+    if (score >= 274 + ghostEaten * 100) {
+      ghosts.forEach(ghost => clearInterval(ghost.timerId));
+      document.removeEventListener('keyup', movePacman);
+      setTimeout(function () {
+        alert('You have WON the game!'), 500;
+      });
+    }
+  };
+
+  ////////////////////////////////////////////
   ////////////////////////////////////////////
   // Move GHOSTS randomly
   const moveGhost = function (ghost) {
@@ -177,11 +205,13 @@ document.addEventListener('DOMContentLoaded', function () {
       // If ghosts are scared since power-pallet is consumed
       // and pac-man is on a ghost
       // send the ghost back to ghost lair
-      // and add +100 to the scorwe board
+      // and add +100 to the score board
       if (
         ghost.isScared &&
         squares[ghost.currentIndex].classList.contains('pac-man')
       ) {
+        ghostEaten++;
+        ghost.isScared = false;
         squares[ghost.currentIndex].classList.remove(
           ghost.className,
           'ghost',
@@ -192,12 +222,16 @@ document.addEventListener('DOMContentLoaded', function () {
         scoreDisplay.innerHTML = score;
         squares[ghost.currentIndex].classList.remove(ghost.className, 'ghost');
       }
+
+      // Check game over
+      checkGameOver();
     }, ghost.speed);
   };
 
+  // Draw Ghost on the board
+  // Move Ghost randomly
   ghosts.forEach(ghost => {
-    squares[ghost.currentIndex].classList.add(ghost.className);
-    squares[ghost.currentIndex].classList.add('ghost');
+    squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
     moveGhost(ghost);
   });
 
@@ -268,8 +302,10 @@ document.addEventListener('DOMContentLoaded', function () {
     powerPalletEaten();
 
     // Check for Game Over
+    checkGameOver();
 
     // Check for Win
+    checkForWin();
   };
 
   document.addEventListener('keyup', movePacman);
