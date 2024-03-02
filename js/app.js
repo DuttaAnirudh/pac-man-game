@@ -1,11 +1,22 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
+  const overlay = document.querySelector('.overlay');
+  const rulesBtn = document.getElementById('rules');
+  const restartBtn = document.querySelectorAll('#restart');
+  const rulesPopupBox = document.querySelector('.rules-popup');
+  const gameEndsPopupBox = document.querySelector('.game-status-popup');
+  const closePopBtn = document.querySelector('.popup-close');
+
   const scoreDisplay = document.getElementById('score');
+  const gameStatusText = document.getElementById('game-status-text');
+  const levelDisplay = document.getElementById('level');
+
   const width = 28;
   const height = 28;
 
   let score = 0;
+  let level = 1;
   let ghostEaten = 0;
 
   const grid = document.querySelector('.grid');
@@ -52,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
 
   const squares = [];
-
+  console.log(layout.filter(el => el === 0));
   // Create Board
   const createBoard = function () {
     return layout.map((el, i) => {
@@ -75,11 +86,11 @@ document.addEventListener('DOMContentLoaded', function () {
       }
 
       if (el === 3) {
-        return squares[i].classList.add('power-pallet');
+        return squares[i].classList.add('power-pallet', 'power-pallet-box');
       }
 
       if (el === 4) {
-        return;
+        return squares[i].classList.add('void');
       }
     });
   };
@@ -128,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
       score++;
       scoreDisplay.innerHTML = score;
       squares[pacmanCurrentIndex].classList.remove('pac-dot');
+      squares[pacmanCurrentIndex].classList.add('void');
     }
   };
 
@@ -140,6 +152,8 @@ document.addEventListener('DOMContentLoaded', function () {
       ghosts.forEach(ghost => (ghost.isScared = true));
       setTimeout(unscaredGhost, 10000);
       squares[pacmanCurrentIndex].classList.remove('power-pallet');
+      squares[pacmanCurrentIndex].classList.remove('power-pallet-box');
+      squares[pacmanCurrentIndex].classList.add('void');
     }
   };
 
@@ -152,9 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ) {
       ghosts.forEach(ghost => clearInterval(ghost.timerId));
       document.removeEventListener('keyup', movePacman);
-      setTimeout(function () {
-        alert('Game Over'), 500;
-      });
+      gameStatusText.innerHTML = 'Game Over';
+      gameEndsPopupBox.classList.remove('hidden');
     }
   };
 
@@ -164,9 +177,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (score >= 274 + ghostEaten * 100) {
       ghosts.forEach(ghost => clearInterval(ghost.timerId));
       document.removeEventListener('keyup', movePacman);
-      setTimeout(function () {
-        alert('You have WON the game!'), 500;
-      });
+      document.removeEventListener('keyup', movePacman);
+      gameStatusText.innerHTML = 'You Won the Game';
+      gameEndsPopupBox.classList.remove('hidden');
     }
   };
 
@@ -184,12 +197,34 @@ document.addEventListener('DOMContentLoaded', function () {
         !squares[ghost.currentIndex + direction].classList.contains('ghost') &&
         !squares[ghost.currentIndex + direction].classList.contains('wall')
       ) {
+        if (
+          !squares[ghost.currentIndex].classList.contains('void') &&
+          !squares[ghost.currentIndex].classList.contains('ghost-lair')
+        ) {
+          squares[ghost.currentIndex].classList.add('pac-dot');
+
+          if (
+            squares[ghost.currentIndex].classList.contains('power-pallet-box')
+          ) {
+            squares[ghost.currentIndex].classList.add('power-pallet');
+          }
+        }
+
         squares[ghost.currentIndex].classList.remove(
           ghost.className,
           'ghost',
           'scared-ghost'
         );
+
         ghost.currentIndex += direction;
+
+        if (
+          squares[ghost.currentIndex].classList.contains('pac-dot') ||
+          squares[ghost.currentIndex].classList.contains('power-pallet')
+        ) {
+          squares[ghost.currentIndex].classList.remove('pac-dot');
+          squares[ghost.currentIndex].classList.remove('power-pallet');
+        }
         squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
       } else {
         direction =
@@ -309,4 +344,31 @@ document.addEventListener('DOMContentLoaded', function () {
   };
 
   document.addEventListener('keyup', movePacman);
+
+  rulesBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+
+    rulesPopupBox.classList.remove('hidden');
+    overlay.classList.add('overlay--active');
+  });
+
+  restartBtn.forEach(btn =>
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      gameEndsPopupBox.classList.add('hidden');
+      overlay.classList.remove('overlay--active');
+    })
+  );
+
+  overlay.addEventListener('click', function () {
+    overlay.classList.remove('overlay--active');
+    rulesPopupBox.classList.add('hidden');
+    gameEndsPopupBox.classList.add('hidden');
+  });
+
+  closePopBtn.addEventListener('click', function () {
+    overlay.classList.remove('overlay--active');
+    rulesPopupBox.classList.add('hidden');
+  });
 });

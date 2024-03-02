@@ -10,14 +10,71 @@
   <body>
     <div class="container">
       <h1 class="heading">Pacman</h1>
-      <div class="grid"></div>
-      <div class="game-functions-box">
-        <button class="btn">Rules</button>
-        <button class="btn">Restart</button>
-        <h3>Score:<span id="score">0</span></h3>
-        <h3>Level:<span id="level">1</span></h3>
-        <h3>Highscore:<span id="highscore">-</span></h3>
+      <div class="game-box">
+        <div class="grid"></div>
+        <div class="game-functions-box">
+          <button class="btn" id="rules">Rules</button>
+          <button class="btn" id="restart">Restart</button>
+          <h3>Score:<span id="score">0</span></h3>
+          <h3>Level:<span id="level">1</span></h3>
+          <h3>Highscore:<span id="highscore">-</span></h3>
+        </div>
+      </div>
+
+      <!-- GAME OVER POPUP -->
+      <div class="game-status-popup hidden">
+        <h2 class="heading" id="game-status-text">Game Over</h2>
+        <btn class="btn" id="restart">Try Again!</btn>
+      </div>
+
+      <!-- RULES BOX POPUP -->
+      <div class="rules-popup hidden">
+        <div class="popup-close">&Cross;</div>
+        <h2 class="heading">Rules</h2>
+
+        <div class="rules-textbox">
+          <p>
+            <span>Objective: </span>Guide Pac-Man through the maze, eating all
+            pellets while avoiding ghosts.
+          </p>
+          <p>
+            <span>Gameplay Elements: </span>Pac-Man has only one life. Losing a
+            life ends the game. Difficulty levels increase as Pac-Man consumes
+            pellets. Ghosts' speed increases with each difficulty level.
+          </p>
+          <p>
+            <span> Movement: </span>Control Pac-Man with arrow keys
+            (&leftarrow;&uparrow;&rightarrow;&downarrow;). Pac-Man moves through
+            the maze horizontally and vertically.
+          </p>
+          <p>
+            <span>Pellets: </span>Eat all white pellets to progress through the
+            game.
+          </p>
+          <p>
+            <span>Power Pellets: </span>Larger, flashing pellets make ghosts
+            vulnerable. Pac-Man can eat ghosts for extra points while they're
+            vulnerable.
+          </p>
+          <p>
+            <span>Ghosts: </span>Avoid being caught by ghosts (Blinky, Pinky,
+            Inky, Clyde). Ghosts capture Pac-Man upon contact
+          </p>
+          <p>
+            <span>Maze Warp Tunnels: </span>Use warp tunnels for quick traversal
+            across the maze.
+          </p>
+          <p>
+            <span>Scoring: </span>Points awarded for eating pellets and ghosts.
+            No fruit feature.
+          </p>
+          <p>
+            <span>Level Completion: </span>Progress through difficulty levels
+            instead of traditional levels. Game ends when Pac-Man loses a life.
+          </p>
+        </div>
       </div>
     </div>
+    <div class="overlay"></div>
   </body>
 </html>

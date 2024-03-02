@@ -29,6 +29,11 @@ body {
   color: #fff;
   padding: 3rem 1.5rem;
   overflow: hidden;
+  position: relative;
+}
+
+.hidden {
+  display: none;
 }
 
 .container {
@@ -41,16 +46,19 @@ body {
 .heading {
   text-align: center;
   font-size: 3rem;
-  margin-top: 4rem;
+  margin-block: 4rem;
   letter-spacing: 2px;
 }
 
-.game-functions-box {
-  position: absolute;
-  top: 40%;
-  right: 6%;
-  transform: translateY(-50%);
+.game-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+  transform: translateX(10%);
+}
 
+.game-functions-box {
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -74,21 +82,20 @@ body {
   flex-wrap: wrap;
   width: 56rem;
   height: 56rem;
-  position: absolute;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   background-color: transparent;
 }
 
 .grid div {
   width: 2rem;
   height: 2rem;
+  position: relative;
+  z-index: 10;
 }
 
 .pac-dot {
-  background-color: green;
-  border: 0.5rem solid #333;
+  background-color: yellow;
+  border-radius: 2rem;
+  border: 0.8rem solid #333;
 }
 
 .wall {
@@ -96,12 +103,13 @@ body {
 }
 
 .power-pallet {
-  background-color: green;
-  border-radius: 1rem;
+  background-color: yellow;
+  border-radius: 2rem;
+  border: 0.5rem solid #333;
 }
 
 .pac-man {
-  background-color: rgb(209, 209, 61);
+  background-color: rgb(243, 190, 16);
   border-radius: 1rem;
 }
 
@@ -123,4 +131,62 @@ body {
 
 .scared-ghost {
   background-color: aquamarine;
+}
+
+.game-status-popup,
+.rules-popup {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #333;
+  width: 80%;
+  padding: 3rem 6rem;
+  z-index: 200;
+}
+
+.game-status-popup {
+  text-align: center;
+  padding-bottom: 6rem;
+}
+
+.rules-textbox {
+  display: flex;
+  flex-direction: column;
+  align-items: self-start;
+  gap: 1rem;
+}
+
+.rules-textbox p {
+  font-family: "Press Start 2P", sans-serif;
+  line-height: 1.6;
+}
+
+.rules-textbox span {
+  color: yellow;
+}
+
+.popup-close {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  font-size: 3rem;
+  cursor: pointer;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 200;
+}
+
+.overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 100;
+}
+
+.overlay--active {
+  display: block;
 }
