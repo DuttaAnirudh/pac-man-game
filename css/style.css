@@ -77,6 +77,10 @@ body {
   cursor: pointer;
 }
 
+.btn:active {
+  outline: none;
+}
+
 .grid {
   display: flex;
   flex-wrap: wrap;

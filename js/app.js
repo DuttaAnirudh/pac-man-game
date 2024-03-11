@@ -9,341 +9,378 @@ document.addEventListener('DOMContentLoaded', function () {
   const closePopBtn = document.querySelector('.popup-close');
 
   const scoreDisplay = document.getElementById('score');
+  const highScoreDisplay = document.getElementById('highscore');
   const gameStatusText = document.getElementById('game-status-text');
   const levelDisplay = document.getElementById('level');
 
+  const grid = document.querySelector('.grid');
   const width = 28;
   const height = 28;
 
-  let score = 0;
-  let level = 1;
-  let ghostEaten = 0;
+  // Fetch latest highscore
+  let highScore = +localStorage.getItem('highScore');
 
-  const grid = document.querySelector('.grid');
+  // Render latest highscore
+  highScoreDisplay.innerHTML = highScore;
 
-  // 0 - Pac-dots
-  // 1 - wall
-  // 2 - ghost-lair
-  // 3 - power-pellet
-  // 4 - empty
+  const init = function () {
+    let score = 0;
+    let level = 1;
+    let ghostEaten = 0;
 
-  const layout = [
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1,
-    1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 3, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0,
-    1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 3, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
-    1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
-    1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1,
-    1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 2, 2, 1, 1,
-    1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 2, 2, 2,
-    2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 0, 0, 0, 4, 1,
-    2, 2, 2, 2, 2, 2, 1, 4, 0, 0, 0, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 0, 1,
-    1, 4, 1, 2, 2, 2, 2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1,
-    1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0,
-    0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1,
-    0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
-    1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 3, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
-    1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
-    0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
-    1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1,
-  ];
+    scoreDisplay.innerHTML = score;
+    levelDisplay.innerHTML = level;
 
-  const squares = [];
-  console.log(layout.filter(el => el === 0));
-  // Create Board
-  const createBoard = function () {
-    return layout.map((el, i) => {
-      const square = document.createElement('div');
-      square.id = i;
-      squares.push(square);
-      grid.appendChild(square);
+    grid.innerHTML = '';
 
-      // Add layout to the board
-      if (el === 0) {
-        return squares[i].classList.add('pac-dot');
+    // 0 - Pac-dots
+    // 1 - wall
+    // 2 - ghost-lair
+    // 3 - power-pellet
+    // 4 - empty
+
+    const layout = [
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1,
+      1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 3, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0,
+      1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 3, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0,
+      1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
+      1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1,
+      1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 2, 2, 1, 1,
+      1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 4, 1, 2, 2, 2,
+      2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 0, 0, 0, 4, 1,
+      2, 2, 2, 2, 2, 2, 1, 4, 0, 0, 0, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 0, 1,
+      1, 4, 1, 2, 2, 2, 2, 2, 2, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 0, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 4, 1, 1, 0, 1, 1, 1, 1, 1,
+      1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0,
+      0, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1,
+      0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
+      1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 3, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
+      1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1,
+      0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+      0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,
+      1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+      1, 1, 1, 1, 1, 1, 1, 1, 1,
+    ];
+
+    const squares = [];
+
+    // Create Board
+    const createBoard = function () {
+      return layout.map((el, i) => {
+        const square = document.createElement('div');
+        square.id = i;
+        squares.push(square);
+        grid.appendChild(square);
+
+        // Add layout to the board
+        if (el === 0) {
+          return squares[i].classList.add('pac-dot');
+        }
+
+        if (el === 1) {
+          return squares[i].classList.add('wall');
+        }
+
+        if (el === 2) {
+          return squares[i].classList.add('ghost-lair');
+        }
+
+        if (el === 3) {
+          return squares[i].classList.add('power-pallet', 'power-pallet-box');
+        }
+
+        if (el === 4) {
+          return squares[i].classList.add('void');
+        }
+      });
+    };
+    createBoard();
+
+    ////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // GHOST CLASS
+    class Ghost {
+      constructor(className, startIndex, speed) {
+        this.className = className;
+        this.startIndex = startIndex;
+        this.speed = speed;
+        this.currentIndex = startIndex;
+        this.isScared = false;
+        this.timerId = NaN;
       }
+    }
 
-      if (el === 1) {
-        return squares[i].classList.add('wall');
+    const ghosts = [
+      new Ghost('blinky', 348, 250),
+      new Ghost('pinky', 376, 400),
+      new Ghost('inky', 351, 300),
+      new Ghost('clyde', 379, 500),
+    ];
+
+    ////////////////////////////////////////////
+    // Unscared ghost
+    const unscaredGhost = function () {
+      ghosts.forEach(ghost => (ghost.isScared = false));
+    };
+
+    ////////////////////////////////////////////
+    // Create Charectors
+    // Draw pac-man onto the board
+    let pacmanCurrentIndex = 490;
+    const drawPacman = function () {
+      squares[pacmanCurrentIndex].classList.add('pac-man');
+    };
+    drawPacman();
+
+    ////////////////////////////////////////////
+    // Eat a pac dot
+    const pacDotEaten = function () {
+      if (squares[pacmanCurrentIndex].classList.contains('pac-dot')) {
+        score++;
+        scoreDisplay.innerHTML = score;
+        squares[pacmanCurrentIndex].classList.remove('pac-dot');
+        squares[pacmanCurrentIndex].classList.add('void');
       }
+    };
 
-      if (el === 2) {
-        return squares[i].classList.add('ghost-lair');
+    ////////////////////////////////////////////
+    // Eats a power pallet
+    const powerPalletEaten = function () {
+      if (squares[pacmanCurrentIndex].classList.contains('power-pallet')) {
+        score += 10;
+        scoreDisplay.innerHTML = score;
+        ghosts.forEach(ghost => (ghost.isScared = true));
+        setTimeout(unscaredGhost, 10000);
+        squares[pacmanCurrentIndex].classList.remove('power-pallet');
+        squares[pacmanCurrentIndex].classList.remove('power-pallet-box');
+        squares[pacmanCurrentIndex].classList.add('void');
       }
+    };
 
-      if (el === 3) {
-        return squares[i].classList.add('power-pallet', 'power-pallet-box');
-      }
-
-      if (el === 4) {
-        return squares[i].classList.add('void');
-      }
-    });
-  };
-  createBoard();
-
-  ////////////////////////////////////////////
-  ////////////////////////////////////////////
-  // GHOST CLASS
-  class Ghost {
-    constructor(className, startIndex, speed) {
-      this.className = className;
-      this.startIndex = startIndex;
-      this.speed = speed;
-      this.currentIndex = startIndex;
-      this.isScared = false;
-      this.timerId = NaN;
-    }
-  }
-
-  const ghosts = [
-    new Ghost('blinky', 348, 250),
-    new Ghost('pinky', 376, 400),
-    new Ghost('inky', 351, 300),
-    new Ghost('clyde', 379, 500),
-  ];
-
-  ////////////////////////////////////////////
-  // Unscared ghost
-  const unscaredGhost = function () {
-    ghosts.forEach(ghost => (ghost.isScared = false));
-  };
-
-  ////////////////////////////////////////////
-  // Create Charectors
-  // Draw pac-man onto the board
-  let pacmanCurrentIndex = 490;
-  const drawPacman = function () {
-    squares[pacmanCurrentIndex].classList.add('pac-man');
-  };
-  drawPacman();
-
-  ////////////////////////////////////////////
-  // Eat a pac dot
-  const pacDotEaten = function () {
-    if (squares[pacmanCurrentIndex].classList.contains('pac-dot')) {
-      score++;
-      scoreDisplay.innerHTML = score;
-      squares[pacmanCurrentIndex].classList.remove('pac-dot');
-      squares[pacmanCurrentIndex].classList.add('void');
-    }
-  };
-
-  ////////////////////////////////////////////
-  // Eats a power pallet
-  const powerPalletEaten = function () {
-    if (squares[pacmanCurrentIndex].classList.contains('power-pallet')) {
-      score += 10;
-      scoreDisplay.innerHTML = score;
-      ghosts.forEach(ghost => (ghost.isScared = true));
-      setTimeout(unscaredGhost, 10000);
-      squares[pacmanCurrentIndex].classList.remove('power-pallet');
-      squares[pacmanCurrentIndex].classList.remove('power-pallet-box');
-      squares[pacmanCurrentIndex].classList.add('void');
-    }
-  };
-
-  ////////////////////////////////////////////
-  // Check for Game Over
-  const checkGameOver = function () {
-    if (
-      squares[pacmanCurrentIndex].classList.contains('ghost') &&
-      !squares[pacmanCurrentIndex].classList.contains('scared-ghost')
-    ) {
-      ghosts.forEach(ghost => clearInterval(ghost.timerId));
-      document.removeEventListener('keyup', movePacman);
-      gameStatusText.innerHTML = 'Game Over';
-      gameEndsPopupBox.classList.remove('hidden');
-    }
-  };
-
-  ////////////////////////////////////////////
-  // Check for Win
-  const checkForWin = function () {
-    if (score >= 274 + ghostEaten * 100) {
-      ghosts.forEach(ghost => clearInterval(ghost.timerId));
-      document.removeEventListener('keyup', movePacman);
-      document.removeEventListener('keyup', movePacman);
-      gameStatusText.innerHTML = 'You Won the Game';
-      gameEndsPopupBox.classList.remove('hidden');
-    }
-  };
-
-  ////////////////////////////////////////////
-  ////////////////////////////////////////////
-  // Move GHOSTS randomly
-  const moveGhost = function (ghost) {
-    const directionsArray = [-1, 1, width, -width];
-    let direction =
-      directionsArray[Math.floor(Math.random() * directionsArray.length)];
-
-    ghost.timerId = setInterval(function () {
-      // If next is NOT a wall OR ghost-lair
+    ////////////////////////////////////////////
+    // Check for Game Over
+    const checkGameOver = function () {
       if (
-        !squares[ghost.currentIndex + direction].classList.contains('ghost') &&
-        !squares[ghost.currentIndex + direction].classList.contains('wall')
+        squares[pacmanCurrentIndex].classList.contains('ghost') &&
+        !squares[pacmanCurrentIndex].classList.contains('scared-ghost')
       ) {
+        ghosts.forEach(ghost => clearInterval(ghost.timerId));
+
+        // If score is greater than highscore
+        if (score > highScore) {
+          // save it in local storage
+          localStorage.setItem('highScore', score);
+          // render highscore to display
+          highScoreDisplay.innerHTML = score;
+        }
+        document.removeEventListener('keyup', movePacman);
+        gameStatusText.innerHTML = 'Game Over';
+        gameEndsPopupBox.classList.remove('hidden');
+      }
+    };
+
+    ////////////////////////////////////////////
+    // Check for Win
+    const checkForWin = function () {
+      if (score >= 274 + ghostEaten * 100) {
+        ghosts.forEach(ghost => clearInterval(ghost.timerId));
+
+        document.removeEventListener('keyup', movePacman);
+        document.removeEventListener('keyup', movePacman);
+        gameStatusText.innerHTML = 'You Won the Game';
+        gameEndsPopupBox.classList.remove('hidden');
+
+        // If score is greater than highscore
+        if (score > highScore) {
+          // save it in local storage
+          localStorage.setItem('highScore', score);
+          // render highscore to display
+          highScoreDisplay.innerHTML = score;
+        }
+      }
+    };
+
+    ////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // Move GHOSTS randomly
+    const moveGhost = function (ghost) {
+      const directionsArray = [-1, 1, width, -width];
+      let direction =
+        directionsArray[Math.floor(Math.random() * directionsArray.length)];
+
+      ghost.timerId = setInterval(function () {
+        // If next is NOT a wall OR ghost-lair
         if (
-          !squares[ghost.currentIndex].classList.contains('void') &&
-          !squares[ghost.currentIndex].classList.contains('ghost-lair')
+          !squares[ghost.currentIndex + direction].classList.contains(
+            'ghost'
+          ) &&
+          !squares[ghost.currentIndex + direction].classList.contains('wall')
         ) {
-          squares[ghost.currentIndex].classList.add('pac-dot');
+          if (
+            !squares[ghost.currentIndex].classList.contains('void') &&
+            !squares[ghost.currentIndex].classList.contains('ghost-lair')
+          ) {
+            squares[ghost.currentIndex].classList.add('pac-dot');
+
+            if (
+              squares[ghost.currentIndex].classList.contains('power-pallet-box')
+            ) {
+              squares[ghost.currentIndex].classList.add('power-pallet');
+            }
+          }
+
+          squares[ghost.currentIndex].classList.remove(
+            ghost.className,
+            'ghost',
+            'scared-ghost'
+          );
+
+          ghost.currentIndex += direction;
 
           if (
-            squares[ghost.currentIndex].classList.contains('power-pallet-box')
+            squares[ghost.currentIndex].classList.contains('pac-dot') ||
+            squares[ghost.currentIndex].classList.contains('power-pallet')
           ) {
-            squares[ghost.currentIndex].classList.add('power-pallet');
+            squares[ghost.currentIndex].classList.remove('pac-dot');
+            squares[ghost.currentIndex].classList.remove('power-pallet');
           }
+          squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
+        } else {
+          direction =
+            directionsArray[Math.floor(Math.random() * directionsArray.length)];
         }
 
-        squares[ghost.currentIndex].classList.remove(
-          ghost.className,
-          'ghost',
-          'scared-ghost'
-        );
+        // If ghosts are scared since power-pallet is consumed
+        // then change the color of the ghost
+        if (ghost.isScared) {
+          squares[ghost.currentIndex].classList.add('scared-ghost');
+        }
 
-        ghost.currentIndex += direction;
-
+        // If ghosts are scared since power-pallet is consumed
+        // and pac-man is on a ghost
+        // send the ghost back to ghost lair
+        // and add +100 to the score board
         if (
-          squares[ghost.currentIndex].classList.contains('pac-dot') ||
-          squares[ghost.currentIndex].classList.contains('power-pallet')
+          ghost.isScared &&
+          squares[ghost.currentIndex].classList.contains('pac-man')
         ) {
-          squares[ghost.currentIndex].classList.remove('pac-dot');
-          squares[ghost.currentIndex].classList.remove('power-pallet');
+          ghostEaten++;
+          ghost.isScared = false;
+          squares[ghost.currentIndex].classList.remove(
+            ghost.className,
+            'ghost',
+            'scared-ghost'
+          );
+          ghost.currentIndex = ghost.startIndex;
+          score += 100;
+          scoreDisplay.innerHTML = score;
+          squares[ghost.currentIndex].classList.remove(
+            ghost.className,
+            'ghost'
+          );
         }
-        squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
-      } else {
-        direction =
-          directionsArray[Math.floor(Math.random() * directionsArray.length)];
+
+        // Check game over
+        checkGameOver();
+      }, ghost.speed);
+    };
+
+    // Draw Ghost on the board
+    // Move Ghost randomly
+    ghosts.forEach(ghost => {
+      squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
+      moveGhost(ghost);
+    });
+
+    ////////////////////////////////////////////
+    ////////////////////////////////////////////
+    ////////////////////////////////////////////
+    // Move Pacman
+    const movePacman = function (e) {
+      squares[pacmanCurrentIndex].classList.remove('pac-man');
+
+      // MOVE LEFT
+      if (e.key === 'ArrowLeft') {
+        if (
+          pacmanCurrentIndex % width !== 0 &&
+          !squares[pacmanCurrentIndex - 1].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex - 1].classList.contains('ghost-lair')
+        ) {
+          pacmanCurrentIndex--;
+        }
+
+        if (squares[pacmanCurrentIndex - 1] === squares[363]) {
+          pacmanCurrentIndex = 391;
+        }
       }
 
-      // If ghosts are scared since power-pallet is consumed
-      // then change the color of the ghost
-      if (ghost.isScared) {
-        squares[ghost.currentIndex].classList.add('scared-ghost');
+      // MOVE RIGHT
+      if (e.key === 'ArrowRight') {
+        if (
+          pacmanCurrentIndex % width < width - 1 &&
+          !squares[pacmanCurrentIndex + 1].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex + 1].classList.contains('ghost-lair')
+        ) {
+          pacmanCurrentIndex++;
+        }
+
+        if (squares[pacmanCurrentIndex + 1] === squares[392]) {
+          pacmanCurrentIndex = 364;
+        }
       }
 
-      // If ghosts are scared since power-pallet is consumed
-      // and pac-man is on a ghost
-      // send the ghost back to ghost lair
-      // and add +100 to the score board
-      if (
-        ghost.isScared &&
-        squares[ghost.currentIndex].classList.contains('pac-man')
-      ) {
-        ghostEaten++;
-        ghost.isScared = false;
-        squares[ghost.currentIndex].classList.remove(
-          ghost.className,
-          'ghost',
-          'scared-ghost'
-        );
-        ghost.currentIndex = ghost.startIndex;
-        score += 100;
-        scoreDisplay.innerHTML = score;
-        squares[ghost.currentIndex].classList.remove(ghost.className, 'ghost');
+      // MOVE UP
+      if (e.key === 'ArrowUp') {
+        if (
+          pacmanCurrentIndex - width >= 0 &&
+          !squares[pacmanCurrentIndex - width].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex - width].classList.contains('ghost-lair')
+        ) {
+          pacmanCurrentIndex -= width;
+        }
       }
 
-      // Check game over
+      // MOVE DOWN
+      if (e.key === 'ArrowDown') {
+        if (
+          pacmanCurrentIndex + width <= width * width &&
+          !squares[pacmanCurrentIndex + width].classList.contains('wall') &&
+          !squares[pacmanCurrentIndex + width].classList.contains('ghost-lair')
+        )
+          pacmanCurrentIndex += width;
+      }
+
+      // Pac-Dot eaten
+      pacDotEaten();
+
+      // Power-pallet eaten
+      powerPalletEaten();
+
+      // Check for Game Over
       checkGameOver();
-    }, ghost.speed);
+
+      // Check for Win
+      checkForWin();
+
+      squares[pacmanCurrentIndex].classList.add('pac-man');
+    };
+
+    document.addEventListener('keyup', movePacman);
   };
 
-  // Draw Ghost on the board
-  // Move Ghost randomly
-  ghosts.forEach(ghost => {
-    squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
-    moveGhost(ghost);
-  });
-
-  ////////////////////////////////////////////
-  ////////////////////////////////////////////
-  ////////////////////////////////////////////
-  // Move Pacman
-  const movePacman = function (e) {
-    squares[pacmanCurrentIndex].classList.remove('pac-man');
-
-    // MOVE LEFT
-    if (e.key === 'ArrowLeft') {
-      if (
-        pacmanCurrentIndex % width !== 0 &&
-        !squares[pacmanCurrentIndex - 1].classList.contains('wall') &&
-        !squares[pacmanCurrentIndex - 1].classList.contains('ghost-lair')
-      ) {
-        pacmanCurrentIndex--;
-      }
-
-      if (squares[pacmanCurrentIndex - 1] === squares[363]) {
-        pacmanCurrentIndex = 391;
-      }
-    }
-
-    // MOVE RIGHT
-    if (e.key === 'ArrowRight') {
-      if (
-        pacmanCurrentIndex % width < width - 1 &&
-        !squares[pacmanCurrentIndex + 1].classList.contains('wall') &&
-        !squares[pacmanCurrentIndex + 1].classList.contains('ghost-lair')
-      ) {
-        pacmanCurrentIndex++;
-      }
-
-      if (squares[pacmanCurrentIndex + 1] === squares[392]) {
-        pacmanCurrentIndex = 364;
-      }
-    }
-
-    // MOVE UP
-    if (e.key === 'ArrowUp') {
-      if (
-        pacmanCurrentIndex - width >= 0 &&
-        !squares[pacmanCurrentIndex - width].classList.contains('wall') &&
-        !squares[pacmanCurrentIndex - width].classList.contains('ghost-lair')
-      ) {
-        pacmanCurrentIndex -= width;
-      }
-    }
-
-    // MOVE DOWN
-    if (e.key === 'ArrowDown') {
-      if (
-        pacmanCurrentIndex + width <= width * width &&
-        !squares[pacmanCurrentIndex + width].classList.contains('wall') &&
-        !squares[pacmanCurrentIndex + width].classList.contains('ghost-lair')
-      )
-        pacmanCurrentIndex += width;
-    }
-
-    squares[pacmanCurrentIndex].classList.add('pac-man');
-
-    // Pac-Dot eaten
-    pacDotEaten();
-
-    // Power-pallet eaten
-    powerPalletEaten();
-
-    // Check for Game Over
-    checkGameOver();
-
-    // Check for Win
-    checkForWin();
-  };
-
-  document.addEventListener('keyup', movePacman);
+  init();
 
   rulesBtn.addEventListener('click', function (e) {
     e.preventDefault();
@@ -351,15 +388,6 @@ document.addEventListener('DOMContentLoaded', function () {
     rulesPopupBox.classList.remove('hidden');
     overlay.classList.add('overlay--active');
   });
-
-  restartBtn.forEach(btn =>
-    btn.addEventListener('click', function (e) {
-      e.preventDefault();
-
-      gameEndsPopupBox.classList.add('hidden');
-      overlay.classList.remove('overlay--active');
-    })
-  );
 
   overlay.addEventListener('click', function () {
     overlay.classList.remove('overlay--active');
@@ -371,4 +399,17 @@ document.addEventListener('DOMContentLoaded', function () {
     overlay.classList.remove('overlay--active');
     rulesPopupBox.classList.add('hidden');
   });
+
+  restartBtn.forEach(btn =>
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // Reinitialize the game
+      location.reload();
+
+      // Hide game over popup
+      gameEndsPopupBox.classList.add('hidden');
+      overlay.classList.remove('overlay--active');
+    })
+  );
 });
