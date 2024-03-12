@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let level = 1;
     let ghostEaten = 0;
 
+    let speedReducedAt100 = false;
+    let speedReducedAt200 = false;
+
     scoreDisplay.innerHTML = score;
     levelDisplay.innerHTML = level;
 
@@ -117,17 +120,44 @@ document.addEventListener('DOMContentLoaded', function () {
         this.startIndex = startIndex;
         this.speed = speed;
         this.currentIndex = startIndex;
+        this.respawnIndex = 378;
         this.isScared = false;
         this.timerId = NaN;
       }
     }
 
     const ghosts = [
-      new Ghost('blinky', 348, 250),
-      new Ghost('pinky', 376, 400),
-      new Ghost('inky', 351, 300),
-      new Ghost('clyde', 379, 500),
+      new Ghost('blinky', 295, 290),
+      new Ghost('pinky', 292, 400),
+      new Ghost('inky', 351, 320),
+      new Ghost('clyde', 348, 500),
     ];
+
+    ////////////////////////////////////////////
+    // Increase Ghost Speed
+    const checkSpeed = function () {
+      // Check if the score is 100 or above and the speed has not been reduced yet at 100
+      if (score >= 100 && !speedReducedAt100) {
+        ghosts.forEach(ghost => {
+          ghost.speed *= 0.92;
+          moveGhost(ghost);
+        });
+        level++;
+        levelDisplay.innerHTML = level;
+        speedReducedAt100 = true; // Set the flag to true to indicate speed reduction at 50
+      }
+
+      // Check if the score is 200 or above and the speed has not been reduced yet at 200
+      if (score >= 200 && !speedReducedAt200) {
+        ghosts.forEach(ghost => {
+          ghost.speed *= 0.88;
+          moveGhost(ghost);
+        });
+        level++;
+        levelDisplay.innerHTML = level;
+        speedReducedAt200 = true; // Set the flag to true to indicate speed reduction at 100
+      }
+    };
 
     ////////////////////////////////////////////
     // Unscared ghost
@@ -149,6 +179,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const pacDotEaten = function () {
       if (squares[pacmanCurrentIndex].classList.contains('pac-dot')) {
         score++;
+
+        // Increase speed of ghost if score >= 100
+        if (score >= 10 || score >= 25) {
+          checkSpeed();
+        }
+
         scoreDisplay.innerHTML = score;
         squares[pacmanCurrentIndex].classList.remove('pac-dot');
         squares[pacmanCurrentIndex].classList.add('void');
@@ -160,12 +196,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const powerPalletEaten = function () {
       if (squares[pacmanCurrentIndex].classList.contains('power-pallet')) {
         score += 10;
+
+        // Increase speed of ghost if score >= 100
+        if (score >= 10 || score >= 25) {
+          checkSpeed();
+        }
+
         scoreDisplay.innerHTML = score;
         ghosts.forEach(ghost => (ghost.isScared = true));
         setTimeout(unscaredGhost, 10000);
         squares[pacmanCurrentIndex].classList.remove('power-pallet');
         squares[pacmanCurrentIndex].classList.remove('power-pallet-box');
         squares[pacmanCurrentIndex].classList.add('void');
+      }
+    };
+
+    ////////////////////////////////////////////
+    // Store Highscore to local storage
+    const storeHighscore = function () {
+      if (score > highScore) {
+        // save it in local storage
+        localStorage.setItem('highScore', score);
+        // render highscore to display
+        highScoreDisplay.innerHTML = score;
       }
     };
 
@@ -179,12 +232,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ghosts.forEach(ghost => clearInterval(ghost.timerId));
 
         // If score is greater than highscore
-        if (score > highScore) {
-          // save it in local storage
-          localStorage.setItem('highScore', score);
-          // render highscore to display
-          highScoreDisplay.innerHTML = score;
-        }
+        storeHighscore();
         document.removeEventListener('keyup', movePacman);
         gameStatusText.innerHTML = 'Game Over';
         gameEndsPopupBox.classList.remove('hidden');
@@ -203,12 +251,7 @@ document.addEventListener('DOMContentLoaded', function () {
         gameEndsPopupBox.classList.remove('hidden');
 
         // If score is greater than highscore
-        if (score > highScore) {
-          // save it in local storage
-          localStorage.setItem('highScore', score);
-          // render highscore to display
-          highScoreDisplay.innerHTML = score;
-        }
+        storeHighscore();
       }
     };
 
@@ -283,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'ghost',
             'scared-ghost'
           );
-          ghost.currentIndex = ghost.startIndex;
+          ghost.currentIndex = ghost.respawnIndex;
           score += 100;
           scoreDisplay.innerHTML = score;
           squares[ghost.currentIndex].classList.remove(
