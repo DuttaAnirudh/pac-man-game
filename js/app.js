@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const rulesPopupBox = document.querySelector('.rules-popup');
   const gameEndsPopupBox = document.querySelector('.game-status-popup');
   const closePopBtn = document.querySelector('.popup-close');
+  const gameStatesMessage = document.querySelector('.game-start-message');
 
   const scoreDisplay = document.getElementById('score');
   const highScoreDisplay = document.getElementById('highscore');
@@ -16,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const grid = document.querySelector('.grid');
   const width = 28;
   const height = 28;
+
+  let gameState = true;
 
   // Fetch latest highscore
   let highScore = +localStorage.getItem('highScore');
@@ -234,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // If score is greater than highscore
         storeHighscore();
         document.removeEventListener('keyup', movePacman);
+        overlay.classList.add('overlay--active');
         gameStatusText.innerHTML = 'Game Over';
         gameEndsPopupBox.classList.remove('hidden');
       }
@@ -246,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ghosts.forEach(ghost => clearInterval(ghost.timerId));
 
         document.removeEventListener('keyup', movePacman);
-        document.removeEventListener('keyup', movePacman);
+        overlay.classList.add('overlay--active');
         gameStatusText.innerHTML = 'You Won the Game';
         gameEndsPopupBox.classList.remove('hidden');
 
@@ -341,13 +345,10 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     // Draw Ghost on the board
-    // Move Ghost randomly
     ghosts.forEach(ghost => {
       squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
-      moveGhost(ghost);
     });
 
-    ////////////////////////////////////////////
     ////////////////////////////////////////////
     ////////////////////////////////////////////
     // Move Pacman
@@ -405,6 +406,8 @@ document.addEventListener('DOMContentLoaded', function () {
           pacmanCurrentIndex += width;
       }
 
+      squares[pacmanCurrentIndex].classList.add('pac-man');
+
       // Pac-Dot eaten
       pacDotEaten();
 
@@ -416,11 +419,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // Check for Win
       checkForWin();
-
-      squares[pacmanCurrentIndex].classList.add('pac-man');
     };
 
-    document.addEventListener('keyup', movePacman);
+    ////////////////////////////////////////////
+    // Start the game when 'SPACEBAR' is pressed
+    const startTheGame = function (e) {
+      if (gameState && e.code === 'Space') {
+        // Hide the game state message
+        gameStatesMessage.classList.add('hidden');
+
+        // Move Ghost randomly
+        ghosts.forEach(ghost => {
+          squares[ghost.currentIndex].classList.add(ghost.className, 'ghost');
+          moveGhost(ghost);
+        });
+
+        // Move Pacman
+        document.addEventListener('keyup', movePacman);
+        gameState = false;
+      }
+    };
+
+    document.addEventListener('keypress', startTheGame);
   };
 
   init();

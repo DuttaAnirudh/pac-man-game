@@ -33,7 +33,7 @@ body {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .container {
@@ -193,4 +193,30 @@ body {
 
 .overlay--active {
   display: block;
+}
+
+.game-start-message {
+  display: flex;
+  justify-content: space-between;
+  width: 56rem;
+  margin: 0 auto;
+  padding-top: 3rem;
+}
+
+.game-start-message p {
+  color: yellow;
+  font-size: 1.5rem;
+}
+
+.game-start-message p:last-child {
+  color: #fff;
+  animation: pulsate 1s cubic-bezier(1, 0, 0, 1) infinite;
+}
+
+@keyframes pulsate {
+  to {
+    display: none;
+    scale: 1.01;
+    color: yellow;
+  }
 }
