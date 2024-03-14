@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Check if the score is 100 or above and the speed has not been reduced yet at 100
       if (score >= 100 && !speedReducedAt100) {
         ghosts.forEach(ghost => {
-          ghost.speed *= 0.92;
+          ghost.speed *= 0.95;
           moveGhost(ghost);
         });
         level++;
@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
       // Check if the score is 200 or above and the speed has not been reduced yet at 200
       if (score >= 200 && !speedReducedAt200) {
         ghosts.forEach(ghost => {
-          ghost.speed *= 0.88;
+          ghost.speed *= 0.92;
           moveGhost(ghost);
         });
         level++;
