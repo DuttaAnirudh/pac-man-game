@@ -107,9 +107,10 @@ body {
 }
 
 .power-pallet {
-  background-color: yellow;
+  background-color: orangered;
   border-radius: 2rem;
   border: 0.5rem solid #333;
+  animation: pulsateBg 0.8s cubic-bezier(1, 0, 0, 1) infinite;
 }
 
 .pac-man {
@@ -210,13 +211,19 @@ body {
 
 .game-start-message p:last-child {
   color: #fff;
-  animation: pulsate 1s cubic-bezier(1, 0, 0, 1) infinite;
+  animation: pulsateText 1s cubic-bezier(1, 0, 0, 1) infinite;
 }
 
-@keyframes pulsate {
+@keyframes pulsateText {
   to {
     display: none;
     scale: 1.01;
     color: yellow;
+  }
+}
+
+@keyframes pulsateBg {
+  to {
+    background-color: yellow;
   }
 }
