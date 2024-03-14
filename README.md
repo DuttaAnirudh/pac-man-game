@@ -2,7 +2,7 @@
 
 Pacman is a web-based game inspired by the classic arcade game of the same name. The objective is to guide Pac-Man through a maze, eating all the pellets while avoiding ghosts.[Live Demo](https://pacman-dutta.netlify.app/)
 
-![Pacman Screenshot](pacman-screenshot.png)
+![Pacman Screenshot](./imgs/pacman-screenshot.png)
 
 ## Tech Stack
 
